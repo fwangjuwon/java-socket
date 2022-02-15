@@ -50,8 +50,8 @@ public class MyServerSocket {
             while (true) {
                 String inputData = reader.readLine();
                 System.out.println("받은 메시지 : " + inputData);
-                if (inputData.equals("")) {
-                    System.out.println("대화가 종료되었습니다.");
+                if (inputData.equals("안녕")) {
+                    System.out.println("대화 끝");
                     break;
                 }
             }

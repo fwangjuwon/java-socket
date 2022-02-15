@@ -29,12 +29,13 @@ public class MyClientSocket {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             sc = new Scanner(System.in);
 
+            // 메인스레드 바쁘기 전에 넣어야한다.
             new Thread(() -> {
                 while (true) {
                     try {
                         String inputData = reader.readLine();
                         System.out.println("받은 메세지: " + inputData);
-                        if (inputData.equals("")) {
+                        if (inputData.equals("안녕")) {
                             System.out.println("대화끝");
                             break;
                         }
