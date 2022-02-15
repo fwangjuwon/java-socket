@@ -29,6 +29,7 @@ public class MyServerSocket {
                 고객전담스레드 t = new 고객전담스레드(socket);
                 고객리스트.add(t); // 전역변수로 list에 담아놓자. 소켓이랑 t가 아직 살아 있다. t를 리스트에 담아놓으면 스택이 종료되어도 garbage
                               // collection 안생긴다.
+
                 System.out.println("고객리스트 크기: " + 고객리스트.size());
                 new Thread(t).start();
             }
