@@ -1,4 +1,4 @@
-package site.metacoding.chat_v2;
+package site.metacoding.chat_v3;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,6 +10,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+
+//jwp = 주원프로토콜
+//1. 최초메세지는 username으로 체킹
+//2. 구분자:
+//3. ALL:메세지
+//4. CHAT:ID:메세지
 
 public class MyServerSocket {
 
@@ -47,17 +53,19 @@ public class MyServerSocket {
     // 내부class
     class 고객전담스레드 implements Runnable {
 
+        String username;
+
         // 소켓을 보관할 곳
         Socket socket;
 
         // 내부에 buffer를 가져야한다. (고객마다)
         BufferedReader reader;
         BufferedWriter writer;
-
-        boolean isLogin = true;
+        boolean isLogin;
 
         public 고객전담스레드(Socket socket) {
             this.socket = socket;
+
             try {
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -66,8 +74,68 @@ public class MyServerSocket {
             }
         }
 
+        // ALL:뭐시라라
+        public void chatPublic(String msg) {
+
+            try {
+                for (고객전담스레드 t : 고객리스트) { // 왼쪽: 컬렉션 타입, 오른쪽: 컬렉션
+                    if (t != this) {
+                        t.writer.write(username + ": " + msg + "\n");
+                        t.writer.flush();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // CHAT:주원:안녕ㅎㅎ
+        public void chatPrivate(String receiver, String msg) {
+            System.out.println("귓속말");
+            try {
+                for (고객전담스레드 t : 고객리스트) { // 왼쪽: 컬렉션 타입, 오른쪽: 컬렉션,
+                    if (t.username.equals(receiver)) {
+                        t.writer.write("[귓속말]" + username + ": " + msg + "\n");
+                        t.writer.flush();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 주원프로토콜 검사기
+        // ALL:안녕
+        // CHAT:주원:안녕
+        public void jwp(String inputData) {
+            // 1. protocol 분리
+            String[] token = inputData.split(":"); // 0번지: 프로토콜, 1번지: 메세지일수도 아이디일수도,,, 프로토콜 이름으로분리
+            String protocol = token[0];
+            if (protocol.equals("ALL")) {
+                String msg = token[1];
+                chatPublic(msg);
+
+            } else if (protocol.equals("CHAT")) {
+                String receiver = token[1];
+                String msg = token[2];
+                chatPrivate(receiver, msg);
+            } else { // 프로토콜 통과 못한것.
+                System.out.println("프로토콜 없음");
+            }
+        }
+
         @Override
         public void run() {
+
+            // 최초메세지는 username이다.
+            try {
+                username = reader.readLine();
+                isLogin = true;
+            } catch (Exception e) {
+                isLogin = false;
+                System.out.println("username을 받지 못했다.");
+            }
+
             while (isLogin) {
                 try {
                     String inputData = reader.readLine();
@@ -76,10 +144,7 @@ public class MyServerSocket {
                     // 메세지 받았으니까 LIST<고객전담스레드> 고객리스트 <-여기에 담긴다
                     // 모든 클라이언트에게 메세지 전송(FOR문 돌려서!)
                     // 기존for문: 자유도가 높다. // for-each문: collection의 크기만큼만 돈다.
-                    for (고객전담스레드 t : 고객리스트) { // 왼쪽: 컬렉션 타입, 오른쪽: 컬렉션,
-                        t.writer.write(inputData + "\n");
-                        t.writer.flush();
-                    }
+                    jwp(inputData);
 
                 } catch (Exception e) {
                     try {
@@ -95,6 +160,7 @@ public class MyServerSocket {
                 }
             }
         }
+
     }
 
     public static void main(String[] args) {

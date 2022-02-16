@@ -6,6 +6,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch MyClientSocket",
+            "request": "launch",
+            "mainClass": "site.metacoding.chat_v3.MyClientSocket",
+            "projectName": "chatting_e1c979f3"
+        },
+        {
+            "type": "java",
+            "name": "Launch MyServerSocket",
+            "request": "launch",
+            "mainClass": "site.metacoding.chat_v3.MyServerSocket",
+            "projectName": "chatting_e1c979f3"
+        },
+        {
+            "type": "java",
+            "name": "Launch MyClientSocket",
+            "request": "launch",
+            "mainClass": "site.metacoding.chat_v2.MyClientSocket",
+            "projectName": "chatting_e1c979f3"
+        },
+        {
+            "type": "java",
+            "name": "Launch MyServerSocket",
+            "request": "launch",
+            "mainClass": "site.metacoding.chat_v2.MyServerSocket",
+            "projectName": "chatting_e1c979f3"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
